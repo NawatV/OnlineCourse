@@ -1,7 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
-# <HINT> Import any new Models here
-from .models import Course, Enrollment
+
+# Import any new Models here
+from .models import Course, Enrollment, Team, News, Reaction, Comment  # Added
+from django.contrib.auth.decorators import login_required # Added
+
 from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
@@ -10,8 +13,44 @@ from django.contrib.auth import login, logout, authenticate
 import logging
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
-# Create your views here.
 
+
+#------------ Task 5 -------------------
+from .models import Course, Enrollment, Question, Choice, Submission
+
+def submit(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    user = request.user
+    enrollment = Enrollment.objects.get(user=user, course=course)
+    submission = Submission.objects.create(enrollment=enrollment)
+    choices = extract_answers(request)
+    submission.choices.set(choices)
+    submission_id = submission.id
+    return HttpResponseRedirect(reverse(viewname='onlinecourse:exam_result', args=(course_id, submission_id,)))
+
+def show_exam_result(request, course_id, submission_id):
+    context = {}
+    course = get_object_or_404(Course, pk=course_id)
+    submission = Submission.objects.get(id=submission_id)
+    choices = submission.choices.all()
+
+    total_score = 0
+    questions = course.question_set.all()  # Assuming course has related questions
+
+    for question in questions:
+        correct_choices = question.choice_set.filter(is_correct=True)  # Get all correct choices for the question
+        selected_choices = choices.filter(question=question)  # Get the user's selected choices for the question
+
+        # Check if the selected choices are the same as the correct choices
+        if set(correct_choices) == set(selected_choices):
+            total_score += question.grade  # Add the question's grade only if all correct answers are selected
+
+    context['course'] = course
+    context['grade'] = total_score
+    context['choices'] = choices
+
+    return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
+#-----------------------------------------------------
 
 def registration_request(request):
     context = {}
@@ -83,6 +122,103 @@ class CourseListView(generic.ListView):
                 course.is_enrolled = check_if_enrolled(user, course)
         return courses
 
+#==================== Added ====================
+#------- Team ---------------------------
+def teaminfo(request):
+    return render(request, 'onlinecourse/team_info_bootstrap.html')
+
+class TeamListView(generic.ListView):
+    model = Team
+    template_name = 'onlinecourse/team_info_bootstrap.html'
+    context_object_name = 'team_list'
+
+    def get_queryset(self):
+        return Team.objects.all().order_by('start_date')  #Ascending
+
+#------- News ---------------------------
+def news(request):
+    return render(request, 'onlinecourse/news_bootstrap.html')
+
+class NewsListView(generic.ListView):
+    model = News
+    template_name = 'onlinecourse/news_bootstrap.html'
+    context_object_name = 'news_list'
+
+    def get_queryset(self):
+        return News.objects.all().order_by('-pub_date')  #Descending
+
+    #--- ****** Count each reaction_type before displaying them on news_bootstrap.html ---
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        news_list = context['news_list']
+
+        for news in news_list:
+            news.like_count = news.reaction_set.filter(reaction_type='like').count()
+            news.love_count = news.reaction_set.filter(reaction_type='love').count()
+            news.dislike_count = news.reaction_set.filter(reaction_type='dislike').count()
+            news.angry_count = news.reaction_set.filter(reaction_type='angry').count()
+
+            # Get this user's reaction (if any)
+            if self.request.user.is_authenticated:
+                user_reaction = news.reaction_set.filter(user=self.request.user).first()
+                news.user_reaction_type = user_reaction.reaction_type if user_reaction else None
+
+        return context
+
+#------- Reaction ---------------------------
+def add_reaction(request, pk, model_type):
+    if request.method == "POST":
+        reaction_type = request.POST.get("reaction_type")
+        
+        if model_type == "news":
+            target = News.objects.get(pk=pk)
+            reaction_filter = {"user": request.user, "news": target}
+        elif model_type == "team":
+            # >> Mofify here to apply for the Team Info section
+            target = Team.objects.get(pk=pk)
+            Reaction.objects.create(user=request.user, team=target, reaction_type=reaction_type)
+
+        # Delete the existing reaction
+        Reaction.objects.filter(**reaction_filter).delete()
+        # Add a new reaction 
+        Reaction.objects.create(user=request.user, news=target, reaction_type=reaction_type)
+
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+#------- Comment ---------------------------
+def add_comment(request, pk, model_type):
+    if request.method == "POST":
+        text = request.POST.get("text")
+        if model_type == "news":
+            target = News.objects.get(pk=pk)
+            Comment.objects.create(user=request.user, news=target, text=text)
+        elif model_type == "team":
+            target = Team.objects.get(pk=pk)
+            Comment.objects.create(user=request.user, team=target, text=text)
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id)
+
+    # Allow delete only if the user owns the comment
+    if request.user == comment.user:
+        # Determine redirect target: news or team
+        if comment.news:
+            post_id = comment.news.id
+            model_type = "news"
+        elif comment.team:
+            post_id = comment.team.id
+            model_type = "team"
+        else:
+            post_id = None
+            model_type = None
+
+        comment.delete()
+
+    #return redirect("onlinecourse:news") + f"#news-{post_id}"
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+#================================================
 
 class CourseDetailView(generic.DetailView):
     model = Course
@@ -102,17 +238,6 @@ def enroll(request, course_id):
 
     return HttpResponseRedirect(reverse(viewname='onlinecourse:course_details', args=(course.id,)))
 
-
-# <HINT> Create a submit view to create an exam submission record for a course enrollment,
-# you may implement it based on following logic:
-         # Get user and course object, then get the associated enrollment object created when the user enrolled the course
-         # Create a submission object referring to the enrollment
-         # Collect the selected choices from exam form
-         # Add each selected choice object to the submission object
-         # Redirect to show_exam_result with the submission id
-#def submit(request, course_id):
-
-
 # An example method to collect the selected choices from the exam form from the request object
 def extract_answers(request):
    submitted_anwsers = []
@@ -122,15 +247,5 @@ def extract_answers(request):
            choice_id = int(value)
            submitted_anwsers.append(choice_id)
    return submitted_anwsers
-
-
-# <HINT> Create an exam result view to check if learner passed exam and show their question results and result for each question,
-# you may implement it based on the following logic:
-        # Get course and submission based on their ids
-        # Get the selected choice ids from the submission record
-        # For each selected choice, check if it is a correct answer or not
-        # Calculate the total score
-#def show_exam_result(request, course_id, submission_id):
-
 
 

@@ -13,6 +13,27 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
             </div>
+
+            <!-- Added -->
+            <div class="navbar-header">
+                <a>&</a>
+                <a href="{% url 'onlinecourse:news' %}" class="navbar-brand ml-2 text-primary" style="text-decoration: none;"
+                    onmouseover="this.style.textDecoration='underline';"
+                    onmouseout="this.style.textDecoration='none';">
+                   News
+                </a>
+            </div>
+            <div class="navbar-header align-self-center">
+                <a>by</a>
+                <a href="{% url 'onlinecourse:teaminfo' %}" class="navbar-text medium ml-2 text-primary" style="text-decoration: none;"
+                   onmouseover="this.style.textDecoration='underline';"
+                   onmouseout="this.style.textDecoration='none';">
+                   Nawat V. & [the team]
+                </a>
+                <span class="ml-3"></span>
+                <a>based on original work by IBM Developer Skills Network</a>
+            </div>
+            
             <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
                 <li>
@@ -25,7 +46,7 @@
                         {% csrf_token %}
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Username" name="username" >
-                            <input type="password" class="form-control" placeholder="Username" name="psw" >
+                            <input type="password" class="form-control" placeholder="Password" name="psw" >
                             <button class="btn btn-primary" type="submit">Login</button>
                             <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
                         </div>

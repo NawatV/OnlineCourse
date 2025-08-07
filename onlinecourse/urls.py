@@ -17,8 +17,17 @@ urlpatterns = [
     # ex: /enroll/5/
     path('<int:course_id>/enroll/', views.enroll, name='enroll'),
 
-    # <HINT> Create a route for submit view
+    #------------ Task 5 ---------------------------------
+    path('<int:course_id>/submit/', views.submit, name="submit"),
+    path('course/<int:course_id>/submission/<int:submission_id>/result/', views.show_exam_result, name="exam_result"),
+    #-----------------------------------------------------
 
-    # <HINT> Create a route for show_exam_result view
+    #------------ Added ----------------------------------
+    path('teaminfo/', views.TeamListView.as_view(), name='teaminfo'),
+    path('news/', views.NewsListView.as_view(), name='news'),
+    path('reaction/<int:pk>/<str:model_type>/', views.add_reaction, name='add_reaction'),
+    path('comment/<int:pk>/<str:model_type>/', views.add_comment, name='add_comment'),
+    path('delete_comment/<int:comment_id>/', views.delete_comment, name='delete_comment'),
+    #-----------------------------------------------------
 
  ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

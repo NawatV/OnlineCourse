@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <meta charset="UTF-8">
+    <title>Online Courses</title>
+</head>
+<body>
+    <!-- Navigation bar -->
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                  <a class="navbar-brand" href="#">Team's Info</a>
+            </div>
+
+            <!-- Added -->
+            <div class="navbar-header">
+                <a href="{% url 'onlinecourse:news' %}" class="navbar-brand ml-2 text-primary" style="text-decoration: none;"
+                    onmouseover="this.style.textDecoration='underline';"
+                    onmouseout="this.style.textDecoration='none';">
+                   News
+                </a>
+            </div>
+            <div class="navbar-header align-self-center">
+                <a>Go back to</a>
+                <a href="{% url 'onlinecourse:index' %}" class="navbar-text medium ml-2 text-primary" style="text-decoration: none;"
+                   onmouseover="this.style.textDecoration='underline';"
+                   onmouseout="this.style.textDecoration='none';">
+                   Home
+                </a>
+            </div>
+
+            <ul class="nav navbar-nav navbar-right">
+                {% if user.is_authenticated %}
+                <li>
+                    <a class="btn btn-link" href="#">{{ user.first_name }}({{ user.username }})</a>
+                    <a class="btn btn-link" href="{% url 'onlinecourse:logout' %}">Logout</a>
+                </li>
+                {% else %}
+                <li>
+                    <form class="form-inline" action="{% url 'onlinecourse:login' %}" method="post">
+                        {% csrf_token %}
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Username" name="username" >
+                            <input type="password" class="form-control" placeholder="Password" name="psw" >
+                            <button class="btn btn-primary" type="submit">Login</button>
+                            <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
+                        </div>
+                    </form>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Added: Page content: 'team_list' is from 'class TeamListView(..)' 
+                        if !empty -> 'for team..' -> team.fullname,.., team.image,.. -->
+    {% if team_list %}
+        <div class="container">
+            <div class="card-deck">
+                {% for team in team_list %}
+                         <div class="card" style="width: 36rem;">
+                          <img class="card-img-left" src="{{MEDIA_URL}}/{{ team.image }}" width="240px" height="240px"
+                               alt="Team image">
+                          <div class="card-body bg-light">
+                              <h5 class="card-title">
+                                  {{ team.fullname }}
+                                  <small class="text-muted">({{ team.start_date }} – {{ team.end_date }})</small>
+                                  <small class="card-text">[{{ team.contact }}]</small>
+                              </h5>
+                            <p class="card-text">{{ team.role}}</p>
+
+                            <button class="btn btn-info btn-sm" type="button" id="btn-{{ team.id }}" onclick="toggleDescription({{ team.id }})">
+                                Show Description
+                            </button>
+                            <div id="desc-{{ team.id }}" style="display: none;" class="mt-2">
+                                <div class="card-text">{{ team.description|linebreaksbr|safe }}</div>
+                            </div>
+
+                          </div>
+                        </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% else %}
+        <p>No information is available.</p>
+    {% endif %}
+
+<!-- Added -->
+<script>
+function toggleDescription(id) {
+    var descDiv = document.getElementById('desc-' + id);
+    var button = document.getElementById('btn-' + id);
+
+    if (descDiv.style.display === "none") {
+        descDiv.style.display = "block";
+        button.textContent = "Hide Description";
+    } else {
+        descDiv.style.display = "none";
+        button.textContent = "Show Description";
+    }
+}
+</script>
+
+</body>
+</html>

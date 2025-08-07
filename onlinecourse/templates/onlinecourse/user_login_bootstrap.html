@@ -13,6 +13,27 @@
             <div class="navbar-header">
                 <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
             </div>
+
+            <!-- Added -->
+            <div class="navbar-header">
+                <a>&</a>
+                <a href="{% url 'onlinecourse:news' %}" class="navbar-brand ml-2 text-primary" style="text-decoration: none;"
+                    onmouseover="this.style.textDecoration='underline';"
+                    onmouseout="this.style.textDecoration='none';">
+                   News
+                </a>
+            </div>
+            <div class="navbar-header align-self-center">
+                <a>by</a>
+                <a href="{% url 'onlinecourse:teaminfo' %}" class="navbar-text medium ml-2 text-primary" style="text-decoration: none;"
+                   onmouseover="this.style.textDecoration='underline';"
+                   onmouseout="this.style.textDecoration='none';">
+                   Nawat V. & [the team]
+                </a>
+                <span class="ml-3"></span>
+                <a>based on original work by IBM Developer Skills Network</a>
+            </div>
+            
             <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
                 <li>

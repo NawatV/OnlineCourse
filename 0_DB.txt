@@ -1,0 +1,68 @@
+//The SQLite file (db.sqlite3) will be auto-created inside the project when using default Django config.
+** CMD - Windows (For "Bash or Zsh - macOS or Linux", please see 0_START.txt and apply them for 0_DB.txt)
+
+============== Django Project <-> PostgreSQL ==============
+1. Download and install: https://www.postgresql.org/download/
+
+2. Create a database and a user (via pgAdmin or CLI):
+     e.g. (SQL)
+	CREATE DATABASE mydb;
+	CREATE USER myuser WITH PASSWORD 'mypassword';
+	GRANT ALL PRIVILEGES ON DATABASE mydb TO myuser;
+
+3. Install required Python package. This allows Django to talk to PostgreSQL.
+     >pip install psycopg2-binary
+
+4. Configure DATABASES in the project's settings.py 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'mydb',
+        'USER': 'myuser',
+        'PASSWORD': 'mypassword',
+        'HOST': 'localhost',  #or your remote DB host
+        'PORT': '5432',
+    }
+}
+
+5. Run migrations to create tables 
+     >python manage.py migrate
+
+============== Django Project <-> MySQL ==============
+1. Download and install: https://dev.mysql.com/downloads/installer/
+     // During setup, create a root password.
+     // Use MySQL Workbench or CLI to manage the database.
+
+2. Create a database and a user (via MySQL CLI or Workbench):
+     e.g. (SQL)
+	CREATE DATABASE mydb CHARACTER SET UTF8MB4;
+	CREATE USER 'myuser'@'localhost' IDENTIFIED BY 'mypassword';
+	GRANT ALL PRIVILEGES ON mydb.* TO 'myuser'@'localhost';
+	FLUSH PRIVILEGES;
+
+3. Install MySQL client for Python.
+     >pip install mysqlclient
+If failed, try this:
+     >pip install PyMySQL
+Then in __init__.py of your Django app (same directory as settings.py), add:
+     import pymysql
+     pymysql.install_as_MySQLdb()
+
+4. Configure DATABASES in the project's settings.py 
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mydb',
+        'USER': 'myuser',
+        'PASSWORD': 'mypassword',
+        'HOST': 'localhost',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
+    }
+}
+
+5. Run migrations to create tables 
+     >python manage.py migrate
+

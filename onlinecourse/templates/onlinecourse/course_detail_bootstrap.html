@@ -16,6 +16,27 @@
             <div class="navbar-header">
                   <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
             </div>
+
+            <!-- Added -->
+            <div class="navbar-header">
+                <a>&</a>
+                <a href="{% url 'onlinecourse:news' %}" class="navbar-brand ml-2 text-primary" style="text-decoration: none;"
+                    onmouseover="this.style.textDecoration='underline';"
+                    onmouseout="this.style.textDecoration='none';">
+                   News
+                </a>
+            </div>
+            <div class="navbar-header align-self-center">
+                <a>by</a>
+                <a href="{% url 'onlinecourse:teaminfo' %}" class="navbar-text medium ml-2 text-primary" style="text-decoration: none;"
+                   onmouseover="this.style.textDecoration='underline';"
+                   onmouseout="this.style.textDecoration='none';">
+                   Nawat V. & [the team]  
+                </a>
+                <span class="ml-3"></span>
+                <a>based on original work by IBM Developer Skills Network</a>
+            </div>
+            
             <ul class="nav navbar-nav navbar-right">
                 {% if user.is_authenticated %}
                 <li>
@@ -28,7 +49,7 @@
                         {% csrf_token %}
                         <div class="input-group">
                             <input type="text" class="form-control" placeholder="Username" name="username" >
-                            <input type="password" class="form-control" placeholder="Username" name="psw" >
+                            <input type="password" class="form-control" placeholder="Password" name="psw" >
                             <button class="btn btn-primary" type="submit">Login</button>
                             <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
                         </div>
@@ -41,7 +62,7 @@
 
     <!-- Page content -->
     <div class="container-fluid">
-            <h2>{{ course.name }}</h2>
+        <h2>{{ course.name }}</h2>
             <div class="card-columns-vertical">
                 {% for lesson in course.lesson_set.all %}
                     <div class="card mt-1">
@@ -50,7 +71,36 @@
                     </div>
                 {% endfor %}
             </div>
-            <!-- Course detail template changes go here -->
+
+            <!----------------- Task 3 ------------------>
+            {% if user.is_authenticated %}
+            </br>
+            <button class="btn btn-primary btn-block" data-toggle="collapse" data-target="#exam">Start Exam</button>
+            <div id="exam" class="collapse">
+                <form id="questionform" action="{% url 'onlinecourse:submit' course.id %}" method="POST">
+                    {% for question in course.question_set.all %}
+                    <div class="card mt-1">
+                        <div class="card-header">
+                            <h5>{{ question.content }}</h5>
+                        </div>
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {% for choice in question.choice_set.all %}
+                        <div class="form-check">
+                            <label class="form-check-label">
+                                <input type="checkbox" name="choice_{{choice.id}}" class="form-check-input"
+                                    id="{{choice.id}}" value="{{choice.id}}">{{ choice.content }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                <input class="btn btn-success btn-block" type="submit" value="Submit">
+            </form>
+        </div>
+        {% endif %}
     </div>
+    
 </body>
 </html>

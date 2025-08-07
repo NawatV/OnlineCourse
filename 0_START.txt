@@ -1,0 +1,124 @@
+============== CMD - Windows ==============
+
+1. Change to the project's directory (= mysite) after cloning. Make sure you are in the directory where manage.py is located.  
+     >cd mysite
+
+( Only if your current pip is outdated, and it throws errors, run this or with other version numbers:
+     >pip install --upgrade pip==23.2.1
+)
+
+( If you have not installed Django yet, run this:  //This can solve "ModuleNotFoundError: No module".
+     >pip install django 
+)
+
+( If there is the existing Django virtual environment, or you have cloned the project into an existing folder, 
+  you should delete the old djangoenv/ folder, and recreate the virtual environment in the new path.
+     >rmdir /s /q djangoenv 
+)
+
+( In case of creating requirements.txt (already provided in the project, run this: 
+     >pip freeze > requirements.txt 
+)
+
+2. [Recommended] If djangoenv/ doesn't exist or you prefer a fresh environment, run this:
+     >python -m venv djangoenv
+     >djangoenv\Scripts\activate
+
+3. Install the requirements. Make sure your project includes requirements.txt in the root folder.
+     >pip install -U -r requirements.txt
+
+4. Migrate database (only once or after changes). //This can solve "Database errors". 
+     >python manage.py makemigrations
+     >python manage.py migrate
+
+//If you choose to keep the SQLite file (db.sqlite3) prior, nothing will be changed.
+//If you choose to remove the SQLite file (db.sqlite3) prior, it will be auto-created inside the project after 4. and when using default Django config.
+
+5. Collect the static files. This gathers all static files into one place. //This can solve "CSS not applied".
+     >python manage.py collectstatic
+
+6. Run server.
+     >python manage.py runserver
+
+( In case of running server with custom port, run this instead or other port numbers:
+     >python manage.py runserver 0.0.0.0:8001  
+)
+
+7. Visit:    
+For user: http://127.0.0.1:8000/onlinecourse
+For admin: http://127.0.0.1:8000/admin
+//Press ctrl+c to STOP the server.
+
+//You can deploy this project on a server, and configure the server to host the web application in order to make it accessible to others.
+
+8. [Recommended] Create a superuser (for the admin panel):
+     >python manage.py createsuperuser
+And follow the steps.
+
+9. Exit "djangoenv"  
+     >deactivate
+
+============== Bash or Zsh - macOS or Linux ==============
+// On some macOS setups, you may need to use python3 and pip3 instead of python and pip.
+
+1. Change to the project's directory (= mysite) after cloning. Make sure you are in the directory where manage.py is located.  
+     $cd mysite
+
+( Only if your current pip is outdated, and it throws errors, run this or with other version numbers:
+     $pip3 install --upgrade pip==23.2.1
+)
+
+( If you have not installed Django yet, run this:  //This can solve "ModuleNotFoundError: No module".
+     $pip3 install django 
+)
+
+( If there is the existing Django virtual environment, or you have cloned the project into an existing folder, 
+  you should delete the old djangoenv/ folder, and recreate the virtual environment in the new path.
+     $rm -rf djangoenv
+)
+
+( In case of updating the distro-info package (used mainly in Linux distributions to identify OS version info), run this:
+     $pip3 install --upgrade distro-info
+)
+
+( In case of creating requirements.txt (already provided in the project, run this: 
+     $pip3 freeze > requirements.txt 
+)
+
+2. [Recommended] If djangoenv/ doesn't exist or you prefer a fresh environment, run this:
+     $python3 -m venv djangoenv
+     $source djangoenv/bin/activate
+
+3. Install the requirements. Make sure your project includes requirements.txt in the root folder.
+     $pip3 install -U -r requirements.txt
+
+4. Migrate database (only once or after changes). //This can solve "Database errors". 
+     $python3 manage.py makemigrations
+     $python3 manage.py migrate
+
+//If you choose to keep the SQLite file (db.sqlite3) prior, nothing will be changed.
+//If you choose to remove the SQLite file (db.sqlite3) prior, it will be auto-created inside the project after 4. and when using default Django config.
+
+5. Collect the static files. This gathers all static files into one place. //This can solve "CSS not applied".
+     $python3 manage.py collectstatic
+
+6. Run server.
+     $python3 manage.py runserver
+
+( In case of running server with custom port, run this instead or other port numbers:
+     $python3 manage.py runserver 0.0.0.0:8001  
+)
+
+7. Visit:    
+For user: http://127.0.0.1:8000/onlinecourse
+For admin: http://127.0.0.1:8000/admin
+//Press ctrl+c to STOP the server.
+
+//You can deploy this project on a server, and configure the server to host the web application in order to make it accessible to others.
+
+8. [Recommended] Create a superuser (for the admin panel):
+     $python3 manage.py createsuperuser
+And follow the steps.
+
+9. Exit "djangoenv"  
+     $deactivate
