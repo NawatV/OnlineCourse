@@ -60,14 +60,14 @@
         </div>
     </nav>
 
-    <!-- Page content -->
+    <!-- Added: Page content -->
     <div class="container-fluid">
         <h2>{{ course.name }}</h2>
             <div class="card-columns-vertical">
                 {% for lesson in course.lesson_set.all %}
                     <div class="card mt-1">
                         <div class="card-header"><h5>Lesson {{lesson.order|add:1}}: {{lesson.title}}</h5></div>
-                        <div class="card-body">{{lesson.content}}</div>
+                        <div class="card-body">{{lesson.content|linebreaksbr|safe}}</div>
                     </div>
                 {% endfor %}
             </div>

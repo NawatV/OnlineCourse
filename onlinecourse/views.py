@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 
 # Import any new Models here
-from .models import Course, Enrollment, Team, News, Reaction, Comment  # Added
+from .models import Course, Enrollment, Team, News, Reaction, Comment, Rating  # Added
 from django.contrib.auth.decorators import login_required # Added
 
 from django.contrib.auth.models import User
@@ -122,6 +122,25 @@ class CourseListView(generic.ListView):
                 course.is_enrolled = check_if_enrolled(user, course)
         return courses
 
+    #--- ****** Count each rating_amount before displaying them on course_list_bootstrap.html ---
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        course_list = context['course_list']
+
+        for course in course_list:
+            course.rating_1_count = course.rating_set.filter(rating_amount='rating_1').count()
+            course.rating_2_count = course.rating_set.filter(rating_amount='rating_2').count()
+            course.rating_3_count = course.rating_set.filter(rating_amount='rating_3').count()
+            course.rating_4_count = course.rating_set.filter(rating_amount='rating_4').count()
+            course.rating_5_count = course.rating_set.filter(rating_amount='rating_5').count()
+
+            # Get this user's rating (if any)
+            if self.request.user.is_authenticated:
+                user_rating = course.rating_set.filter(user=self.request.user).first()
+                course.user_rating_amount = user_rating.rating_amount if user_rating else None
+
+        return context
+
 #==================== Added ====================
 #------- Team ---------------------------
 def teaminfo(request):
@@ -134,6 +153,25 @@ class TeamListView(generic.ListView):
 
     def get_queryset(self):
         return Team.objects.all().order_by('start_date')  #Ascending
+
+    #--- ****** Count each rating_amount before displaying them on team_info_bootstrap.html ---
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        team_list = context['team_list']
+
+        for team in team_list:
+            team.rating_1_count = team.rating_set.filter(rating_amount='rating_1').count()
+            team.rating_2_count = team.rating_set.filter(rating_amount='rating_2').count()
+            team.rating_3_count = team.rating_set.filter(rating_amount='rating_3').count()
+            team.rating_4_count = team.rating_set.filter(rating_amount='rating_4').count()
+            team.rating_5_count = team.rating_set.filter(rating_amount='rating_5').count()
+
+            # Get this user's rating (if any)
+            if self.request.user.is_authenticated:
+                user_rating = team.rating_set.filter(user=self.request.user).first()
+                team.user_rating_amount = user_rating.rating_amount if user_rating else None
+
+        return context
 
 #------- News ---------------------------
 def news(request):
@@ -173,15 +211,10 @@ def add_reaction(request, pk, model_type):
         if model_type == "news":
             target = News.objects.get(pk=pk)
             reaction_filter = {"user": request.user, "news": target}
-        elif model_type == "team":
-            # >> Mofify here to apply for the Team Info section
-            target = Team.objects.get(pk=pk)
-            Reaction.objects.create(user=request.user, team=target, reaction_type=reaction_type)
-
-        # Delete the existing reaction
-        Reaction.objects.filter(**reaction_filter).delete()
-        # Add a new reaction 
-        Reaction.objects.create(user=request.user, news=target, reaction_type=reaction_type)
+            # Delete the existing reaction
+            Reaction.objects.filter(**reaction_filter).delete()
+            # Add a new reaction 
+            Reaction.objects.create(user=request.user, news=target, reaction_type=reaction_type)
 
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
@@ -189,12 +222,11 @@ def add_reaction(request, pk, model_type):
 def add_comment(request, pk, model_type):
     if request.method == "POST":
         text = request.POST.get("text")
+
         if model_type == "news":
             target = News.objects.get(pk=pk)
             Comment.objects.create(user=request.user, news=target, text=text)
-        elif model_type == "team":
-            target = Team.objects.get(pk=pk)
-            Comment.objects.create(user=request.user, team=target, text=text)
+    
     return redirect(request.META.get('HTTP_REFERER', '/'))
 
 @login_required
@@ -207,9 +239,6 @@ def delete_comment(request, comment_id):
         if comment.news:
             post_id = comment.news.id
             model_type = "news"
-        elif comment.team:
-            post_id = comment.team.id
-            model_type = "team"
         else:
             post_id = None
             model_type = None
@@ -217,6 +246,30 @@ def delete_comment(request, comment_id):
         comment.delete()
 
     #return redirect("onlinecourse:news") + f"#news-{post_id}"
+    return redirect(request.META.get('HTTP_REFERER', '/'))
+
+#------- Rating ---------------------------
+def add_rating(request, pk, model_type):
+    if request.method == "POST":
+        rating_amount = request.POST.get("rating_amount")
+        
+        if model_type == "course":
+            target = Course.objects.get(pk=pk)
+            rating_filter = {"user": request.user, "course": target}
+            # Delete the existing rating
+            Rating.objects.filter(**rating_filter).delete()
+            # Add a new rating 
+            Rating.objects.create(user=request.user, course=target, rating_amount=rating_amount)
+
+        elif model_type == "team":
+            target = Team.objects.get(pk=pk)
+            rating_filter = {"user": request.user, "team": target}
+                #X: Rating.objects.create(user=request.user, team=target, rating_amount=rating_amount)
+            # Delete the existing rating
+            Rating.objects.filter(**rating_filter).delete()
+            # Add a new rating 
+            Rating.objects.create(user=request.user, team=target, rating_amount=rating_amount)
+
     return redirect(request.META.get('HTTP_REFERER', '/'))
 #================================================
 
@@ -247,5 +300,3 @@ def extract_answers(request):
            choice_id = int(value)
            submitted_anwsers.append(choice_id)
    return submitted_anwsers
-
-

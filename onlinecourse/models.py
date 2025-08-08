@@ -1,4 +1,4 @@
-import sys
+import sys, os # Added
 from django.utils.timezone import now
 try:
     from django.db import models
@@ -8,6 +8,7 @@ except Exception:
 
 from django.conf import settings
 import uuid
+from uuid import uuid4 # Added
 from django.contrib.auth.models import User # Added
 
 
@@ -52,11 +53,30 @@ class Learner(models.Model):
         return self.user.username + "," + \
                self.occupation
 
+#------------------ Added ------------------
+# Fixed using the wrong image (caching) & flexible for any folder
+def upload_to_unique_image_dir(base_dir):
+    def unique_image_dir(instance, filename):
+        ext = filename.split('.')[-1]
+        filename = f"{uuid4().hex}.{ext}"
+        return os.path.join(base_dir, filename)
+    return unique_image_dir
+
+# Fixed 'ValueError: Could not find function unique_image_dir in onlinecourse.models.'
+def upload_to_course_images(instance, filename):
+    return upload_to_unique_image_dir('course_images')(instance, filename)
+def upload_to_team_images(instance, filename):
+    return upload_to_unique_image_dir('team_images')(instance, filename)
+def upload_to_news_images(instance, filename):
+    return upload_to_unique_image_dir('news_images')(instance, filename)
+#------------------------------------------
 
 # Course model
 class Course(models.Model):
     name = models.CharField(null=False, max_length=30, default='online course')
-    image = models.ImageField(upload_to='course_images/')
+    image = models.ImageField(upload_to=upload_to_course_images, null=True, blank=True)
+        #X: image = models.ImageField(upload_to='course_images/')
+        #X-Error: upload_to_dir('course_images')
     description = models.CharField(max_length=1000)
     pub_date = models.DateField(null=True)
     instructors = models.ManyToManyField(Instructor)
@@ -72,7 +92,7 @@ class Course(models.Model):
 # Team model
 class Team(models.Model):
     fullname = models.CharField(null=False, max_length=100, default='Anonymous')
-    image = models.ImageField(upload_to='team_images/')
+    image = models.ImageField(upload_to=upload_to_team_images, null=True, blank=True)
     start_date = models.DateField(null=True)
     end_date = models.DateField(null=True)
     contact = models.CharField(null=False, max_length=100, default='Contact')
@@ -86,12 +106,12 @@ class Team(models.Model):
 # News model
 class News(models.Model):
     title = models.CharField(null=False, max_length=100, default='Title')
-    image = models.ImageField(upload_to='news_images/')
+    image = models.ImageField(upload_to=upload_to_news_images, null=True, blank=True)
     pub_date = models.DateField(null=True)
     mod_date = models.DateField(null=True)
     url = models.CharField(null=True, max_length=500, default='URL')
     keyword = models.TextField(max_length=1000, blank=True)
-    description = models.TextField(max_length=10000, blank=True)
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return "Title: " + self.title + "," + \
@@ -107,30 +127,47 @@ class Reaction(models.Model):
         ('angry', 'Angry'),
     ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    team = models.ForeignKey('Team', null=True, blank=True, on_delete=models.CASCADE)
     news = models.ForeignKey('News', null=True, blank=True, on_delete=models.CASCADE)
     reaction_type = models.CharField(max_length=10, choices=REACTION_TYPES)
     reacted_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return  "User:" + str(self.user) + ", " + \
-                "Team:" + str(self.team) + ", " + \
                 "News:" + str(self.news) + ", " + \
                 "Reacted at: " + str(self.reacted_at)
 
 # Comment model
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    team = models.ForeignKey('Team', null=True, blank=True, on_delete=models.CASCADE)
     news = models.ForeignKey('News', null=True, blank=True, on_delete=models.CASCADE)
     text = models.TextField(null=False, max_length=5000, blank=True)
     commented_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return  "User:" + str(self.user) + ", " + \
-                "Team:" + str(self.team) + ", " + \
                 "News:" + str(self.news) + ", " + \
                 "Commented at: " + str(self.commented_at)
+
+# Rating model
+class Rating(models.Model):
+    RATING_AMOUNTS = [
+        ('rating_1', 'rating_1'),
+        ('rating_2', 'rating_2'),
+        ('rating_3', 'rating_3'),
+        ('rating_4', 'rating_4'),
+        ('rating_5', 'rating_5'),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey('Course', null=True, blank=True, on_delete=models.CASCADE)
+    team = models.ForeignKey('Team', null=True, blank=True, on_delete=models.CASCADE)
+    rating_amount = models.CharField(max_length=10, choices=RATING_AMOUNTS)
+    rated_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return  "User:" + str(self.user) + ", " + \
+                "Course:" + str(self.course) + ", " + \
+                "Team:" + str(self.team) + ", " + \
+                "Rated at: " + str(self.rated_at)
 #-------------------------------------------
 
 # Lesson model
@@ -156,15 +193,6 @@ class Enrollment(models.Model):
     date_enrolled = models.DateField(default=now)
     mode = models.CharField(max_length=5, choices=COURSE_MODES, default=AUDIT)
     rating = models.FloatField(default=5.0)
-
-
-# One enrollment could have multiple submission
-# One submission could have multiple choices
-# One choice could belong to multiple submissions
-#class Submission(models.Model):
-#    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
-#    choices = models.ManyToManyField(Choice)
-
 
 #------------ Task 1 -------------------
 class Question(models.Model):
@@ -194,3 +222,7 @@ class Choice(models.Model):
 class Submission(models.Model):
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
     choices = models.ManyToManyField(Choice)
+
+# One enrollment could have multiple submission
+# One submission could have multiple choices
+# One choice could belong to multiple submissions

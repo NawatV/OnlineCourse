@@ -22,4 +22,9 @@
         - Improved the Reaction & Comment function by limiting 1 reaction per post per user, changing the reaction buttons' color if such reaction is being selected, 
 	preventing automatic scroll-up to the top of the page after reacting or commenting, and adding the deleting-one's-own-comment button.
         - Added all the basic/necessary data to the project.
+        - Solved image's caching problem.
+        - Modified OnlineCourse/static/onlinecourse/course.css
+        - Developed the entire Rating function for the Team section.
+        - Developed the entire Rating function for the Course List section.
+        - Customized several sections.
 3. Documentation after the modification of the project.

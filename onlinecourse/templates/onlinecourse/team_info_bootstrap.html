@@ -58,29 +58,87 @@
                         if !empty -> 'for team..' -> team.fullname,.., team.image,.. -->
     {% if team_list %}
         <div class="container">
-            <div class="card-deck">
+            <div class="row"> 
+            <!-- <div class="card-deck"> -->
                 {% for team in team_list %}
-                         <div class="card" style="width: 36rem;">
-                          <img class="card-img-left" src="{{MEDIA_URL}}/{{ team.image }}" width="240px" height="240px"
+                    <div class="col-md-4 mb-4" id="team-{{ team.id }}"> 
+                    <!-- #### Set 'id' for jumping back to the current post -->
+                        <div class="card h-100">
+                        <!-- <div class="card" style="width: 36rem;"> -->
+                            <img class="card-img-left" src="{{MEDIA_URL}}/{{ team.image }}" width="70%" height="240px"
                                alt="Team image">
-                          <div class="card-body bg-light">
-                              <h5 class="card-title">
+                            <div class="card-body bg-light">
+                                <h5 class="card-title">
                                   {{ team.fullname }}
-                                  <small class="text-muted">({{ team.start_date }} – {{ team.end_date }})</small>
-                                  <small class="card-text">[{{ team.contact }}]</small>
-                              </h5>
-                            <p class="card-text">{{ team.role}}</p>
+                                    <small class="text-muted">({{ team.start_date }} – {{ team.end_date }})</small>
+                                    <small class="card-text">[{{ team.contact }}]</small>
+                                </h5>
+                                <p class="card-text">{{ team.role}}</p>
 
-                            <button class="btn btn-info btn-sm" type="button" id="btn-{{ team.id }}" onclick="toggleDescription({{ team.id }})">
-                                Show Description
-                            </button>
-                            <div id="desc-{{ team.id }}" style="display: none;" class="mt-2">
-                                <div class="card-text">{{ team.description|linebreaksbr|safe }}</div>
+                                <button class="btn btn-info btn-sm" type="button" id="btn-{{ team.id }}" onclick="toggleDescription({{ team.id }})">
+                                    Show Description
+                                </button>
+                                <div id="desc-{{ team.id }}" style="display: none;" class="mt-2">
+                                    <div class="card-text">{{ team.description|linebreaksbr|safe }}</div>
+                                </div>
+
+                                <!-- Display the ratings after being counted in views.py ****** -->
+                                <div class="mt-2 small" style="font-size: 0.99rem;">
+                                    <strong>Rating:</strong>
+                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">5⭐: {{ team.rating_5_count }}</span>
+                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">4⭐: {{ team.rating_4_count }}</span>
+                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">3⭐: {{ team.rating_3_count }}</span>
+                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">2⭐: {{ team.rating_2_count }}</span>
+                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">1⭐: {{ team.rating_1_count }}</span>
+                                        <!-- [5⭐] {{ team.rating_5_count|linebreaksbr|safe }} &nbsp; -->
+                                </div>
+
+                                {% if user.is_authenticated %}
+                                <!-- Rating Form -->
+                                <form method="POST" action="{% url 'onlinecourse:add_rating' team.id 'team' %}#team-{{ team.id }}"> 
+                                <!-- #### #team-{{team.id}} (='id') for marking the jumping-back post -->
+                                    {% csrf_token %}
+
+                                    {% if team.user_rating_amount == 'rating_1' %}
+                                        <button name="rating_amount" value="rating_1" class="btn btn-sm btn-primary px-2 py-0 mx-0 mt-1">1⭐ </button>
+                                    {% else %}
+                                        <button name="rating_amount" value="rating_1" class="btn btn-outline-primary btn-sm px-2 py-0 mx-0 mt-1">1⭐</button>
+                                    {% endif %}
+
+                                    {% if team.user_rating_amount == 'rating_2' %}
+                                        <button name="rating_amount" value="rating_2" class="btn btn-sm btn-primary px-2 py-0 mx-0 mt-1">2⭐</button>
+                                    {% else %}
+                                        <button name="rating_amount" value="rating_2" class="btn btn-outline-primary btn-sm px-2 py-0 mx-0 mt-1">2⭐</button>
+                                    {% endif %}
+
+                                    {% if team.user_rating_amount == 'rating_3' %}
+                                        <button name="rating_amount" value="rating_3" class="btn btn-sm btn-primary px-2 py-0 mx-0 mt-1">3⭐</button>
+                                    {% else %}
+                                        <button name="rating_amount" value="rating_3" class="btn btn-outline-primary btn-sm px-2 py-0 mx-0 mt-1">3⭐</button>
+                                    {% endif %}
+
+                                    {% if team.user_rating_amount == 'rating_4' %}
+                                        <button name="rating_amount" value="rating_4" class="btn btn-sm btn-primary px-2 py-0 mx-0 mt-1">4⭐</button>
+                                    {% else %}
+                                        <button name="rating_amount" value="rating_4" class="btn btn-outline-primary btn-sm px-2 py-0 mx-0 mt-1">4⭐</button>
+                                    {% endif %}
+
+                                    {% if team.user_rating_amount == 'rating_5' %}
+                                        <button name="rating_amount" value="rating_5" class="btn btn-sm btn-primary px-2 py-0 mx-0 mt-1">5⭐</button>
+                                    {% else %}
+                                        <button name="rating_amount" value="rating_5" class="btn btn-outline-primary btn-sm px-2 py-0 mx-0 mt-1">5⭐</button>
+                                    {% endif %}
+
+                                </form>
+
+                                {% else %}
+                                    <p class="text-muted mt-2"><a href="{% url 'onlinecourse:login' %}">Login</a> to rate.</p>
+                                {% endif %}
                             </div>
-
-                          </div>
                         </div>
+                    </div> <!-- #### -->
                 {% endfor %}
+
             </div>
         </div>
     {% else %}

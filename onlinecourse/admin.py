@@ -1,6 +1,6 @@
 from django.contrib import admin
 #------------ Task 2 -------------------
-from .models import Course, Lesson, Instructor, Learner, Question, Choice, Submission, Team, News, Reaction, Comment # Added
+from .models import Course, Lesson, Instructor, Learner, Question, Choice, Submission, Team, News, Reaction, Comment, Rating # Added
 
 class QuestionInline(admin.StackedInline):
     model = Question
@@ -45,4 +45,5 @@ admin.site.register(Team)
 admin.site.register(News)
 admin.site.register(Reaction)
 admin.site.register(Comment)
+admin.site.register(Rating)
 #----------------------------------------
