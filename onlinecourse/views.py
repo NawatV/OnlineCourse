@@ -134,6 +134,15 @@ class CourseListView(generic.ListView):
             course.rating_4_count = course.rating_set.filter(rating_amount='rating_4').count()
             course.rating_5_count = course.rating_set.filter(rating_amount='rating_5').count()
 
+            #--- Find the avg with 2-digit decimal ---
+            total_ratings = course.rating_1_count*1 +course.rating_2_count*2 +course.rating_3_count*3 +course.rating_4_count*4 +course.rating_5_count*5
+            total_count = course.rating_1_count +course.rating_2_count +course.rating_3_count +course.rating_4_count +course.rating_5_count
+            course.total_count = total_count
+            if total_count == 0:
+                course.rating_avg_count = 0
+            else:
+                course.rating_avg_count = round(total_ratings / total_count, 2) 
+
             # Get this user's rating (if any)
             if self.request.user.is_authenticated:
                 user_rating = course.rating_set.filter(user=self.request.user).first()
@@ -165,6 +174,15 @@ class TeamListView(generic.ListView):
             team.rating_3_count = team.rating_set.filter(rating_amount='rating_3').count()
             team.rating_4_count = team.rating_set.filter(rating_amount='rating_4').count()
             team.rating_5_count = team.rating_set.filter(rating_amount='rating_5').count()
+
+            #--- Find the avg with 2-digit decimal ---
+            total_ratings = team.rating_1_count*1 +team.rating_2_count*2 +team.rating_3_count*3 +team.rating_4_count*4 +team.rating_5_count*5
+            total_count = team.rating_1_count +team.rating_2_count +team.rating_3_count +team.rating_4_count +team.rating_5_count
+            team.total_count = total_count
+            if total_count == 0:
+                team.rating_avg_count = 0
+            else:
+                team.rating_avg_count = round(total_ratings / total_count, 2) 
 
             # Get this user's rating (if any)
             if self.request.user.is_authenticated:

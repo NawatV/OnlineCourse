@@ -83,14 +83,16 @@
                                 </div>
 
                                 <!-- Display the ratings after being counted in views.py ****** -->
-                                <div class="mt-2 small" style="font-size: 0.99rem;">
-                                    <strong>Rating:</strong>
-                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">5⭐: {{ team.rating_5_count }}</span>
-                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">4⭐: {{ team.rating_4_count }}</span>
-                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">3⭐: {{ team.rating_3_count }}</span>
-                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">2⭐: {{ team.rating_2_count }}</span>
-                                        <span class="badge bg-light text-dark border px-1 py-1 mx-0">1⭐: {{ team.rating_1_count }}</span>
-                                        <!-- [5⭐] {{ team.rating_5_count|linebreaksbr|safe }} &nbsp; -->
+                                <div class="mt-2 small" style="font-size: 0.92rem;">
+                                    <strong>
+                                        <span class="sm mr-1" style="font-size: 0.83em;">{{ team.rating_avg_count }}✨({{ team.total_count }})</span>
+                                    </strong>
+                                    <span class="badge bg-light text-dark border px-0 py-1 mx-0">5⭐({{ team.rating_5_count }})</span>
+                                    <span class="badge bg-light text-dark border px-0 py-1 mx-0">4⭐({{ team.rating_4_count }})</span>
+                                    <span class="badge bg-light text-dark border px-0 py-1 mx-0">3⭐({{ team.rating_3_count }})</span>
+                                    <span class="badge bg-light text-dark border px-0 py-1 mx-0">2⭐({{ team.rating_2_count }})</span>
+                                    <span class="badge bg-light text-dark border px-0 py-1 mx-0">1⭐({{ team.rating_1_count }})</span>
+                                    <!-- [5⭐] {{ team.rating_5_count|linebreaksbr|safe }} &nbsp; -->
                                 </div>
 
                                 {% if user.is_authenticated %}

@@ -26,5 +26,6 @@
         - Modified OnlineCourse/static/onlinecourse/course.css
         - Developed the entire Rating function for the Team section.
         - Developed the entire Rating function for the Course List section.
+        - Improved the Rating function by displaying the calculation of the average rating scores.
         - Customized several sections.
 3. Documentation after the modification of the project.
