@@ -30,5 +30,5 @@
         - Customized several sections.
 3. Documentation after the modification of the project.
 
-*** If you find a bug or have a question, please contact nawatv@gmail.com 
+*** If you find a bug or have a question, please contact nawatv@gmail.com <br>
 *** Ready to be further developed in the future.
