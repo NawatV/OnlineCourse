@@ -1,6 +1,6 @@
-# REQUIREMENTS: 
+### REQUIREMENTS: 
      Python 3.7+, Git, pip
-# STEPS: 
+### STEPS: 
 1. Clone this project to your local repository (or fork to your GitHub, then clone it to your local repository).
      Option1: bash: >git clone https://github.com/yourusername/yourproject.git
      Option2: Do via UI
@@ -8,7 +8,7 @@
 3. To start the project, follow 0_START.txt ("CMD - Windows" or "Bash or Zsh - macOS or Linux").
 4. To connect to external database, follow 0_DB.txt.
 
-# DEVELOPMENT:
+### DEVELOPMENT:
      Developed by Nawat Vatanawood, based on original work licensed under the Apache License 2.0 by IBM Developer Skills Network.
      Open to be further developed in the future.
 1. Completion of all the tasks that a learner of a course named Django Application Development with SQL and Databases (by IBM on Coursera) must do 
@@ -29,3 +29,6 @@
         - Improved the Rating function by displaying the calculation of the average rating scores.
         - Customized several sections.
 3. Documentation after the modification of the project.
+
+*** If you find a bug or have a question, please contact nawatv@gmail.com 
+*** Ready to be further developed in the future.
